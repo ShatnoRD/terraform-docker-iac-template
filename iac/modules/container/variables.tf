@@ -12,6 +12,10 @@ variable "container_command" {
   type    = list(string)
   default = null
 }
+variable "container_user" {
+  type    = string
+  default = null
+}
 
 variable "restart_policy" {
   type    = string
