@@ -12,7 +12,7 @@ resource "docker_container" "default" {
   name         = var.container_name
   restart      = var.restart_policy
 
-  network_mode = var.network.driver
+  network_mode = var.networks[0].driver
 
   env          = [for key, value in var.envs : "${key}=${value}"]
   command      = var.container_command
@@ -43,12 +43,12 @@ resource "docker_container" "default" {
     }
   }
 
-  // Only create the "networks_advanced" block if the name is null
+  // Only create the "networks_advanced" block if the name is not null
   dynamic "networks_advanced" {
-    for_each = var.network.name != null ? [0] : []
+    for_each = [for network in var.networks : network if network.name != null]
     content {
-      name    = var.network.name
-      aliases = var.network.aliases
+      name    = networks_advanced.value.name
+      aliases = networks_advanced.value.aliases
     }
   }
 }

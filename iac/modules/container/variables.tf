@@ -44,10 +44,10 @@ variable "volumes" {
   default = []
 }
 
-variable "network" {
-  type = object({
+variable "networks" {
+  type = list(object({
     name    = optional(string)
     driver  = string
     aliases = optional(set(string))
-  })
+  }))
 }
