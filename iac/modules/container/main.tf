@@ -8,7 +8,7 @@ terraform {
 }
 
 resource "docker_container" "default" {
-  image        = "${var.image_name}:${var.image_tag}"
+  image        = var.image_id
   name         = var.container_name
   restart      = var.restart_policy
 
@@ -52,4 +52,3 @@ resource "docker_container" "default" {
     }
   }
 }
-

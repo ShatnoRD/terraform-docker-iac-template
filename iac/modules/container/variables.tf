@@ -1,10 +1,8 @@
 # inherited
-variable "image_name" {
+variable "image_id" {
   type = string
 }
-variable "image_tag" {
-  type = string
-}
+
 variable "container_name" {
   type = string
 }
