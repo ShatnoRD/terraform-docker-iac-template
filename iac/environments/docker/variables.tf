@@ -22,5 +22,10 @@ variable "ssh_port" {
   type    = number
   default = "22"
 }
+variable "ssh_key_file" {
+  type      = string
+  default = "~/.ssh/terraform"
+}
+
 
 
