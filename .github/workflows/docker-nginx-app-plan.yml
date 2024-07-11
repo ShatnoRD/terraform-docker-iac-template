@@ -1,0 +1,29 @@
+name: "Terraform Docker Nginx-App Prepare"
+on:
+  pull_request:
+    paths:
+      - "iac/environments/docker/nginx-app/**"
+    branches:
+      - master
+jobs:
+  terraform-plan:
+    name: "Plan"
+    runs-on:
+      labels: self-hosted
+    environment: nginx-app
+    if: github.event.review.state != 'approved'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Terraform Plan
+        uses: ./.github/plan
+        with:
+          deploy_environment: "docker-nginx-app"
+          terraform_directory: "iac/environments/docker/nginx-app"
+          terraform_version: 1.6.2
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          pr_id: ${{ github.event.pull_request.number }}
+          terraform_secrets: "${{ secrets.TERRAFORM_SECRETS_DOCKER_CICD }}"
+          terraform_ssh_key: "${{ secrets.TERRAFORM_SSH_KEY }}"
+          minio_endpoint: "${{ secrets.TERRAFORM_BACKEND_MINIO_ENDPOINT }}"
+          minio_access_key: "${{ secrets.TERRAFORM_BACKEND_MINIO_ACCESS_KEY }}"
+          minio_secret_key: "${{ secrets.TERRAFORM_BACKEND_MINIO_SECRET_KEY }}"

@@ -15,6 +15,10 @@ variable "container_user" {
   default = null
 }
 
+variable "container_memory_limit" {
+  type    = number
+  default = null
+}
 variable "restart_policy" {
   type    = string
   default = "unless-stopped"

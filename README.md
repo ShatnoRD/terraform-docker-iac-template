@@ -56,7 +56,19 @@ provider "docker" {
 
 ### Running the Project
 
-To run the project, navigate to the project root directory `/iac/environment/docker/` and follow the steps below:
+If deploying with the Github actions from a PR always update secret values in github after encoding them:
+
+```console
+cat terraform.tfvars | base64 -w 0
+```
+
+to double check if the the encoded string is correct:
+
+```console
+echo "ENCODED_STRING" | base64 -d
+```
+
+If doing a manual deploy simply  navigate to the project root directory `/iac/environment/docker/` and follow the steps below:
 
 1. Run `terraform init` to initialize the project.
 2. Run `terraform apply` to apply the changes.

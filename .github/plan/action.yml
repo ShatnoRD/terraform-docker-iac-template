@@ -1,0 +1,93 @@
+name: "Terraform setup and plan"
+description: "Setup Terraform and creates plan"
+inputs:
+  terraform_directory:
+    description: "Directory that holds Terraform code"
+    required: true
+  terraform_version:
+    description: "Terraform Version"
+    required: true
+  github_token:
+    description: "GitHub token for commenting"
+    required: true
+  pr_id:
+    description: "Pull request ID"
+    required: true
+  minio_endpoint:
+    description: "Endpoint URL for the MinIO S3-compatible storage, used in the Terraform backend configuration."
+    required: true
+  minio_access_key:
+    description: "Access key for the MinIO storage, used in the Terraform backend configuration."
+    required: true
+  minio_secret_key:
+    description: "Secret key for the MinIO storage, used in the Terraform backend configuration."
+    required: true
+  terraform_secrets:
+    description: "terraform.tfvars for quick prototyping"
+    required: true
+  terraform_ssh_key:
+    description: "private key for ssh connection to the instance"
+    required: true
+  deploy_environment:
+    description: "The Deploy environment to distinguish workflows and envs"
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ inputs.terraform_version }}
+        terraform_wrapper: false
+    - name: Replace placeholders in backend.tf
+      working-directory: ${{ inputs.terraform_directory }}
+      shell: bash
+      run: |
+        sed -i 's|MINIO_ENDPOINT_PLACEHOLDER|${{ inputs.minio_endpoint }}|g' backend.tf
+        sed -i 's|MINIO_ACCESS_KEY_PLACEHOLDER|${{ inputs.minio_access_key }}|g' backend.tf
+        sed -i 's|MINIO_SECRET_KEY_PLACEHOLDER|${{ inputs.minio_secret_key }}|g' backend.tf
+    - name: "create terraform.tfvars"
+      working-directory: ${{ inputs.terraform_directory }}
+      shell: bash
+      run: |
+        echo ${{ inputs.terraform_secrets }} | base64 -d > terraform.tfvars
+    - name: "create terraform ssh key"
+      shell: bash
+      run: |
+        mkdir -p ~/.ssh
+        echo ${{ inputs.terraform_ssh_key }} | base64 -d > ~/.ssh/terraform
+        chmod 600 ~/.ssh/terraform
+    - name: Terraform Init
+      id: init
+      working-directory: ${{ inputs.terraform_directory }}
+      shell: bash
+      run: |
+        terraform init
+    - name: Terraform Plan
+      id: plan
+      working-directory: ${{ inputs.terraform_directory }}
+      shell: bash
+      run: |
+        echo 'plan<<EOF' >> $GITHUB_OUTPUT
+        terraform plan -no-color -out=tfplan >> /dev/null
+        terraform show -no-color tfplan | tail -c 59999 >> $GITHUB_OUTPUT
+        echo 'EOF' >> $GITHUB_OUTPUT
+    - name: Save Artifact
+      id: save-artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ inputs.pr_id }}-${{ inputs.deploy_environment }}-tf-plan
+        path: ${{ inputs.terraform_directory }}/tfplan
+    - name: Comment Plan
+      id: comment-plan
+      uses: peter-evans/create-or-update-comment@v4
+      with:
+        token: ${{ inputs.github_token }}
+        issue-number: ${{ inputs.pr_id }}
+        body: |
+          [${{ inputs.deploy_environment }}]
+
+          ```
+          ${{ steps.plan.outputs.plan }}
+          ```
+
+          Plan saved to GH artifacts.

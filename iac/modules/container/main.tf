@@ -17,7 +17,9 @@ resource "docker_container" "default" {
   env          = [for key, value in var.envs : "${key}=${value}"]
   command      = var.container_command
   user         = var.container_user
-
+  
+  memory       = var.container_memory_limit
+  
   dynamic "labels" {
     for_each = var.labels
     content {

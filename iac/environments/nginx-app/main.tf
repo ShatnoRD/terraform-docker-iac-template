@@ -8,7 +8,7 @@ resource "system_folder" "app_config_folder" {
 
 resource "system_file" "app_config_file" {
   path   = "${system_folder.app_config_folder.path}/nginx.conf"
-  source = "../../../data/app/config/nginx.conf"
+  source = "../../../../data/nginx-app/config/nginx.conf"
 }
 
 
@@ -29,7 +29,7 @@ resource "docker_image" "nginx" {
 
 
 module "proxy_app_hostmode" {
-  source = "../../modules/container"
+  source = "../../../modules/container"
 
   image_id       = docker_image.nginx.image_id
   container_name = "nginx-proxy-app1"
@@ -53,7 +53,7 @@ module "proxy_app_hostmode" {
 }
 
 module "proxy_app_bridgemode" {
-  source = "../../modules/container"
+  source = "../../../modules/container"
 
   image_id       = docker_image.nginx.image_id
   container_name = "nginx-proxy-app2"
