@@ -1,9 +1,5 @@
 name: "Terraform Docker Nginx-App Deploy"
 on:
-  # pull_request_review:
-  #   types: [submitted]
-  #   branches:
-  #     - master
   pull_request:
     types: [closed]
     branches:
@@ -12,13 +8,13 @@ jobs:
   terraform-apply:
     name: "Apply"
     runs-on:
-      labels: self-hosted
-    environment: nginx-app
+      labels: ubuntu-latest
+    environment: docker-nginx-app
     if: github.event.pull_request.merged == true # if: github.event.review.state == 'approved'
     steps:
       - uses: actions/checkout@v3
       - name: Terraform docker/nginx-app Apply
-        uses: ./.github/apply
+        uses: ./.github/pr-apply
         with:
           deploy_environment: "docker-nginx-app"
           terraform_directory: "iac/environments/docker/nginx-app"
