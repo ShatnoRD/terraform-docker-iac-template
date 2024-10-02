@@ -1,28 +1,24 @@
-name: "Terraform Docker Nginx-App Prepare"
+name: "Terraform Docker Nginx-App Actualization"
 on:
-  pull_request:
-    paths:
-      - "iac/environments/docker/nginx-app/**"
-    branches:
-      - master
+  schedule:
+    - cron: "0 * * * *" # every hour
 jobs:
-  terraform-plan:
-    name: "Plan"
+  terraform-apply-auto-approve:
+    name: "apply-auto-approve"
     runs-on:
       labels: ubuntu-latest
     environment: docker-nginx-app
-    if: github.event.review.state != 'approved'
+    if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v3
-      - name: Terraform Plan
-        uses: ./.github/pr-plan
+      - name: Terraform nginx-app actualize
+        uses: ./.github/cron-apply-auto-approve
         with:
           deploy_environment: "docker-nginx-app"
           terraform_directory: "iac/environments/docker/nginx-app"
           terraform_version: 1.6.2
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          pr_id: ${{ github.event.pull_request.number }}
-          terraform_secrets: "${{ secrets.TERRAFORM_SECRETS_DOCKER_CICD }}"
+          terraform_secrets: "${{ secrets.TERRAFORM_SECRETS }}"
           terraform_ssh_key: "${{ secrets.TERRAFORM_SSH_KEY }}"
           minio_endpoint: "${{ secrets.TERRAFORM_BACKEND_MINIO_ENDPOINT }}"
           minio_access_key: "${{ secrets.TERRAFORM_BACKEND_MINIO_ACCESS_KEY }}"
