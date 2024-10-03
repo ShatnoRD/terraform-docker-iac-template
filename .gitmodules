@@ -1,0 +1,3 @@
+[submodule "iac/modules/container"]
+	path = iac/modules/container
+	url = https://github.com/ShatnoRD/terraform-docker-container

@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "homelab"
+    bucket = "docker"
     key    = "nginx-app/terraform.tfstate"
 
     endpoints = { s3 = "MINIO_ENDPOINT_PLACEHOLDER"}

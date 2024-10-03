@@ -39,15 +39,15 @@ resource "docker_container" "default" {
   dynamic "volumes" {
     for_each = var.volumes
     content {
-      host_path      = volumes.value["host_path"]
-      container_path = volumes.value["container_path"]
-      read_only      = volumes.value["read_only"]
+      host_path      = volumes.value.host_path
+      container_path = volumes.value.container_path
+      read_only      = volumes.value.read_only
     }
   }
 
   // Only create the "networks_advanced" block if the name is not null
   dynamic "networks_advanced" {
-    for_each = [for network in var.networks : network if network.name != null]
+    for_each = { for idx, network in var.networks : idx => network if network.name != null }
     content {
       name    = networks_advanced.value.name
       aliases = networks_advanced.value.aliases

@@ -56,21 +56,34 @@ provider "docker" {
 
 ### Running the Project
 
-If deploying with the Github actions from a PR always update secret values in github after encoding them:
+If deploying with GitHub Actions from a PR, ensure the following secrets are populated in your GitHub repository:
 
-```console
-cat terraform.tfvars | base64 -w 0
-```
+- `terraform_secrets`: `${{ secrets.TERRAFORM_SECRETS_DOCKER_CICD }}`
+- `terraform_ssh_key`: `${{ secrets.TERRAFORM_SSH_KEY }}`
 
-to double check if the the encoded string is correct:
+#### Github Actions Deployment:
 
-```console
-echo "ENCODED_STRING" | base64 -d
-```
+1. Encode the `terraform.tfvars` file:
+    ```bash
+    cat terraform.tfvars | base64 -w 0
+    ```
+2. Verify the encoded string:
+    ```bash
+    echo "ENCODED_STRING" | base64 -d
+    ```
+3. Navigate to `Settings` > `Secrets and variables` > `Actions` and add a new repository secret named `TERRAFORM_SECRETS_DOCKER_CICD` with the encoded string for value
 
-If doing a manual deploy simply  navigate to the project root directory `/iac/environment/docker/` and follow the steps below:
+If you are using a remote backend like the provided S3 example, also populate these secrets for the self-hosted S3 alternative Minio:
 
-1. Run `terraform init` to initialize the project.
-2. Run `terraform apply` to apply the changes.
+- `minio_endpoint`: `${{ secrets.TERRAFORM_BACKEND_MINIO_ENDPOINT }}`
+- `minio_access_key`: `${{ secrets.TERRAFORM_BACKEND_MINIO_ACCESS_KEY }}`
+- `minio_secret_key`: `${{ secrets.TERRAFORM_BACKEND_MINIO_SECRET_KEY }}`
+
+#### Manual Deployment:
+
+To manually deploy, with  local terraform statefile, navigate to the project root directory `/iac/environment/docker/nginx-app` and follow these steps:
+1. Comment out the backend.tf file contents
+2. Run `terraform init` to initialize the project.
+3. Run `terraform apply` to apply the changes.
 
 That's it! You have successfully set up and run the project.
