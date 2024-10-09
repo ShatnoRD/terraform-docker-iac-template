@@ -1,3 +1,6 @@
+## Terraform docker iac template
+This repository utilizes the [`ShatnoRD/container/docker`](https://registry.terraform.io/modules/ShatnoRD/container/docker/latest) Terraform module to manage Docker containers on a remote host, demonstrated by the provided NGINX example. It includes a GitHub Actions-based deployment pipeline and [MegaLinter](https://nvuillam.github.io/mega-linter/) configurations for formatting Terraform code with `terraform-fmt`, ensuring CI/CD and code quality assurance.
+
 ## Quickstart Guide
 
 To get started with this project, follow the steps below.
