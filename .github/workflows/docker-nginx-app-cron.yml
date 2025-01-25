@@ -23,3 +23,6 @@ jobs:
           minio_endpoint: "${{ secrets.TERRAFORM_BACKEND_MINIO_ENDPOINT }}"
           minio_access_key: "${{ secrets.TERRAFORM_BACKEND_MINIO_ACCESS_KEY }}"
           minio_secret_key: "${{ secrets.TERRAFORM_BACKEND_MINIO_SECRET_KEY }}"
+          minio_bucket: "docker"
+          minio_key: "nginx-app/terraform.tfstate"
+
