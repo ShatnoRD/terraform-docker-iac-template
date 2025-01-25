@@ -10,7 +10,7 @@ jobs:
     runs-on:
       labels: ubuntu-latest
     environment: docker-nginx-app
-    if: github.event.pull_request.merged == true # if: github.event.review.state == 'approved'
+    if: github.event.pull_request.merged == true
     steps:
       - uses: actions/checkout@v3
       - name: Terraform docker/nginx-app Apply
@@ -26,3 +26,5 @@ jobs:
           minio_endpoint: "${{ secrets.TERRAFORM_BACKEND_MINIO_ENDPOINT }}"
           minio_access_key: "${{ secrets.TERRAFORM_BACKEND_MINIO_ACCESS_KEY }}"
           minio_secret_key: "${{ secrets.TERRAFORM_BACKEND_MINIO_SECRET_KEY }}"
+          minio_bucket: "docker"
+          minio_key: "nginx-app/terraform.tfstate"

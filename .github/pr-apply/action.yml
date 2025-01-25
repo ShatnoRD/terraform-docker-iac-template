@@ -1,5 +1,5 @@
-name: "Terraform setup and plan"
-description: "Setup Terraform and creates plan"
+name: "Terraform setup and apply plan"
+description: "Setup Terraform and apply the latest plan in the PR"
 inputs:
   terraform_directory:
     description: "Directory that holds Terraform code"
@@ -8,7 +8,7 @@ inputs:
     description: "Terraform Version"
     required: true
   github_token:
-    description: "GitHub token for auth"
+    description: "GitHub token for commenting"
     required: true
   pr_id:
     description: "Pull request ID"
@@ -21,6 +21,12 @@ inputs:
     required: true
   minio_secret_key:
     description: "Secret key for the MinIO storage, used in the Terraform backend configuration."
+    required: true
+  minio_bucket:
+    description: "MinIO bucket name"
+    required: true
+  minio_key:
+    description: "MinIO key for the Terraform state"
     required: true
   terraform_secrets:
     description: "terraform.tfvars for quick prototyping"
@@ -38,13 +44,27 @@ runs:
       with:
         terraform_version: ${{ inputs.terraform_version }}
         terraform_wrapper: false
-    - name: Replace placeholders in backend.tf
+    - name: Create backend.tf
       working-directory: ${{ inputs.terraform_directory }}
       shell: bash
       run: |
-        sed -i 's|MINIO_ENDPOINT_PLACEHOLDER|${{ inputs.minio_endpoint }}|g' backend.tf
-        sed -i 's|MINIO_ACCESS_KEY_PLACEHOLDER|${{ inputs.minio_access_key }}|g' backend.tf
-        sed -i 's|MINIO_SECRET_KEY_PLACEHOLDER|${{ inputs.minio_secret_key }}|g' backend.tf
+        cat <<EOF > backend.tf
+        terraform {
+          backend "s3" {
+            bucket = "${{ inputs.minio_bucket }}"
+            key    = "${{ inputs.minio_key }}"
+            endpoints = { s3 = "${{ inputs.minio_endpoint }}" }
+            access_key = "${{ inputs.minio_access_key }}"
+            secret_key = "${{ inputs.minio_secret_key }}"
+            region                      = "main"
+            skip_credentials_validation = true
+            skip_metadata_api_check     = true
+            skip_region_validation      = true
+            use_path_style              = true
+            skip_requesting_account_id  = true
+          }
+        }
+        EOF
     - name: "create terraform.tfvars"
       working-directory: ${{ inputs.terraform_directory }}
       shell: bash
@@ -101,7 +121,7 @@ runs:
       with:
         token: ${{ inputs.github_token }}
         issue-number: ${{ inputs.pr_id }}
-        body: |
+        body: |-
           [${{ inputs.deploy_environment }}]
 
           ```
